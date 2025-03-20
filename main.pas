@@ -16,6 +16,7 @@ begin
    pos:=0;
 end;
 
+
 procedure ler_elemento(var el:integer);
 begin
   writeln('Digite o elemento');
