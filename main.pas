@@ -49,15 +49,15 @@ end;
 procedure insere_fila(var f: vet; var posicao: integer; elemento: integer; tamanho: integer);
 begin
   if not cheia(posicao, tamanho) then
-  begin
-    posicao := posicao + 1;
-    f[posicao] := elemento; 
-  end
+    begin
+        posicao := posicao + 1;
+        f[posicao] := elemento; 
+    end
   else 
-  begin
-    writeln('Fila cheia');
-    readkey;
-  end;
+    begin
+        writeln('Fila cheia');
+        readkey;
+    end;
 end;
 
 procedure remove_fila(var f: vet; var posicao, el: integer);
@@ -65,48 +65,51 @@ var
   i: integer;
 
 begin
-  if FilaVazia(posicao) then 
-  begin
-    writeln('Fila vazia');
-    readkey;
-  end
-  else 
-  begin
-    el := f[1];
-    writeln('Elemento Removido ', el);
-    readkey;
-    for i := 1 to posicao - 1 do
-      f[i] := f[i + 1];
-    posicao := posicao - 1;
-  end;
+    if FilaVazia(posicao) then 
+        begin
+            writeln('Fila vazia');
+            readkey;
+        end
+    else
+        begin
+            el := f[1];
+            writeln('Elemento Removido ', el);
+            readkey;
+            for i := 1 to posicao - 1 do
+                f[i] := f[i + 1];
+            posicao := posicao - 1;
+        end;
 end;
 
 procedure consulta_fila(f: vet; posi: integer; var el: integer; cor1, cor2: integer);
 begin
-  textcolor(cor1);
-  if not FilaVazia(posi) then
-  begin
-    el := f[posi];
-    writeln('Primeiro elemento ', el);
-  end
-  else 
-    writeln('Fila vazia');
-    readkey;
-    textcolor(cor2);
+    textcolor(cor1);
+    if not FilaVazia(posi) then
+        begin
+            el := f[posi];
+            writeln('Primeiro elemento ', el);
+        end
+    else
+        begin
+            writeln('Fila vazia');
+            readkey;
+            textcolor(cor2);
+        end;
 end;
 
 procedure escreve_fila(f: vet; posi: integer; texto: string);
 var 
-  i: integer;
+    i: integer;
 begin
-  writeln(texto);
-  writeln;
-  if not FilaVazia(posi) then
-    for i := 1 to posi do
-      write(f[i], ' ')
-  else 
-    writeln('Fila vazia');
-  readkey;
+    writeln(texto);
+    writeln;
+
+    if not FilaVazia(posi) then
+        for i := 1 to posi do
+            write(f[i], ' ')
+    else 
+        writeln('Fila vazia');
+        readkey;
 end;
 
 
@@ -140,6 +143,13 @@ begin
     writeln ('2 - Adicionar na fila de Visitantes');
     writeln ('3 - Adicionar na fila de Normal');
 
+    writeln ('4 - Ver Fila Sócios');
+    writeln ('5 - Ver Fila Visitantes');
+    writeln ('6 - Ver Fila Normal');
+
+    writeln ('7 - Vender Fila Sócios');
+    writeln ('8 - Vender Fila Visitantes');
+    writeln ('9 - Vender Fila Normal');
 
     writeln;
     write('    ==> ');
@@ -166,11 +176,17 @@ begin
     begin
         menu(opcao);
         if opcao = 1 then 
-            insere_fila(fila_socios, ultima_pos_fila_socio, 1, tamanho_fila_socios)
+            begin
+                insere_fila(fila_socios, ultima_pos_fila_socio, 1, tamanho_fila_socios)
+            end
         else if opcao = 2 then 
-            insere_fila(fila_visitante, ultima_pos_fila_visitante, 1, tamanho_fila_visitante)
+            begin
+                insere_fila(fila_visitante, ultima_pos_fila_visitante, 1, tamanho_fila_visitante)
+            end
         else if opcao = 3 then 
-            insere_fila(fila_normal, ultima_pos_fila_normal, 1, tamanho_fila_normal);
+            begin
+                insere_fila(fila_normal, ultima_pos_fila_normal, 1, tamanho_fila_normal);
+            end;
     end; 
 
 end.
