@@ -2,36 +2,38 @@ program fila_simples;
 uses crt;
 
 const 
-  tamanho_fila_socios    = 500;
-  tamanho_fila_visitante = 300;
-  tamanho_fila_normal    = 2200;
+    tamanho_fila_socios    = 500;
+    tamanho_fila_visitante = 300;
+    tamanho_fila_normal    = 2200;
 
 type
-  vet = array[1..tamanho_fila_socios] of integer;
+    vet = array[1..tamanho_fila_socios] of integer;
 
 var 
-  fila: vet;
-  opcao, ultima_pos_fila_socio, ultima_pos_fila_visitante, ultima_pos_fila_normal: integer;
+    fila_socios: vet;
+    fila_visitante: vet;
+    fila_normal: vet;
+    opcao, ultima_pos_fila_socio, ultima_pos_fila_visitante, ultima_pos_fila_normal: integer;
 
-procedure inicializa(var pos: integer);
+procedure inicializaFila(var pos: integer);
 begin
-  pos := 0;
+    pos := 0;
 end;
 
 procedure ler_elemento(var el: integer);
 begin
-  writeln('Digite o elemento');
-  readln(el);
+    writeln('Digite o elemento');
+    readln(el);
 end;
 
 function cheia(posicao, tamanho: integer): boolean;
 begin   
-  cheia := posicao >= tamanho;
+    cheia := posicao >= tamanho;
 end;
 
 function vazia(posicao: integer): boolean;
 begin   
-  vazia := posicao = 0;
+    vazia := posicao = 0;
 end;
 
 procedure insere_fila(var f: vet; var posicao: integer; elemento: integer; tamanho: integer);
@@ -51,6 +53,7 @@ end;
 procedure remove_fila(var f: vet; var posicao, el: integer);
 var 
   i: integer;
+
 begin
   if vazia(posicao) then 
   begin
@@ -96,6 +99,10 @@ begin
   readkey;
 end;
 
+
+
+
+
 procedure menu(var op_menu: integer);
 begin
         clrscr;
@@ -120,32 +127,20 @@ end;
 { Programa Principal }
 begin
   clrscr;
-  inicializa(ultima_pos_fila_socio);
-  inicializa(ultima_pos_fila_visitante);
-  inicializa(ultima_pos_fila_normal);
-  
+  inicializaFila(ultima_pos_fila_socio);
+  inicializaFila(ultima_pos_fila_visitante);
+  inicializaFila(ultima_pos_fila_normal);
   opcao := 0;
+
   while opcao <> 5 do 
   begin
     menu(opcao);
-    
     if opcao = 1 then 
-      insere_fila(fila, ultima_pos_fila_socio, 1, tamanho_fila_socios)
+      insere_fila(fila_socios, ultima_pos_fila_socio, 1, tamanho_fila_socios)
     else if opcao = 2 then 
-      insere_fila(fila, ultima_pos_fila_visitante, 1, tamanho_fila_visitante)
+      insere_fila(fila_visitante, ultima_pos_fila_visitante, 1, tamanho_fila_visitante)
     else if opcao = 3 then 
-        else if opcao = 3 then 
-    else if opcao = 3 then 
-        else if opcao = 3 then 
-    else if opcao = 3 then 
-        else if opcao = 3 then 
-    else if opcao = 3 then 
-        else if opcao = 3 then 
-    else if opcao = 3 then 
-        else if opcao = 3 then 
-    else if opcao = 3 then 
-        else if opcao = 3 then 
-    else if opcao = 3 then 
-      insere_fila(fila, ultima_pos_fila_normal, 1, tamanho_fila_normal);
-  end;
+      insere_fila(fila_normal, ultima_pos_fila_normal, 1, tamanho_fila_normal);
+  end; 
+
 end.
