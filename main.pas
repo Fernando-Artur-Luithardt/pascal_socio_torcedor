@@ -110,40 +110,40 @@ begin
 end;
 
 
-function pilha_vazia(var topo:integer): Boolean;
+function pilha_ingresso_vazia(var topo:integer): Boolean;
 begin
-  pilha_vazia := (topo = 0);
+    pilha_ingresso_vazia := (topo = 0);
 end;
 
 // Remove um elemento da pilha.
-function pilha_remove(var topo: integer): boolean;
+function pilha_ingresso_remove(var topo: integer): boolean;
 begin
-    if pilha_vazia(topo) then
+    if pilha_ingresso_vazia(topo) then
     begin
         WriteLn('Ingressos Esgotados.');
-        pilha_remove := false;  // Retorna falso quando não pode remover
+        pilha_ingresso_remove := false;  // Retorna falso quando não pode remover
     end
     else
     begin
         topo := topo - 1;
-        pilha_remove := true;  // Retorna true quando remove com sucesso
+        pilha_ingresso_remove := true;  // Retorna true quando remove com sucesso
     end;
 end;
 
-procedure escolher_assento(var op_assento: integer; disponivel_arq, disponivel_geral, disponivel_visitante: boolean);
+procedure escolher_tipo_assento(var op_assento: integer; opt_arq_disp, opt_geral_disp, opt_visit_disp: boolean);
 begin
     writeln;
-    if disponivel_arq then writeln('1 - Arquibancada');
-    if disponivel_geral then writeln('2 - Geral');
-    if disponivel_visitante then writeln('3 - Visitante');
+    if opt_arq_disp then writeln('1 - Arquibancada');
+    if opt_geral_disp then writeln('2 - Geral');
+    if opt_visit_disp then writeln('3 - Visitante');
 
     readln(op_assento);
     
     // Enquanto a opção escolhida não for válida, continue pedindo entrada
     while not (
-        ((op_assento = 1) and disponivel_arq) or 
-        ((op_assento = 2) and disponivel_geral) or 
-        ((op_assento = 3) and disponivel_visitante)
+        ((op_assento = 1) and opt_arq_disp) or 
+        ((op_assento = 2) and opt_geral_disp) or 
+        ((op_assento = 3) and opt_visit_disp)
     ) do
     begin
         writeln('Opção inválida! Escolha um tipo de Assento:');
@@ -151,33 +151,63 @@ begin
     end;
 end;
 
-procedure vender_ingresso_fila(fila: vet; var posicao_fila: integer; disponivel_arq, disponivel_geral, disponivel_visitante: boolean);
+function escolher_assento(var assentos_arquibancada: vetBool; max: integer): boolean;
+var escolha: integer;
+begin
+    escolher_assento := false; 
+
+    writeln('Número do assento entre 1 e ', max, '.');
+    readln(escolha);
+    
+    if (escolha < 1) or (escolha > max) then
+    begin
+        writeln('Número inválido! Escolha entre 1 e ', max, '.');
+        exit;
+    end;
+
+    if assentos_arquibancada[escolha] = False then
+    begin
+        assentos_arquibancada[escolha] := True;
+        writeln('Assento ', escolha, ' reservado com sucesso!');
+        escolher_assento := true;
+    end
+    else
+        writeln('Assento ', escolha, ' já foi utilizado!');
+end;
+
+procedure processa_venda_ingresso(var topo_pilha: integer; var assentos: vetBool; tamanho: integer; fila: vet; var posicao_fila: integer);
+begin
+    if not pilha_ingresso_vazia(topo_pilha) then
+    begin
+        if escolher_assento(assentos, tamanho) then
+        begin
+            pilha_ingresso_remove(topo_pilha);
+            fila_remove(fila, posicao_fila);
+        end
+    end
+    else
+        WriteLn('Ingressos Esgotados.')
+end;
+
+procedure vender_ingresso_fila(fila: vet; var posicao_fila: integer; opt_arq_disp, opt_geral_disp, opt_visit_disp: boolean);
 var opcao_assento: integer;
 begin
     if fila_vazia(posicao_fila) then
         writeln('Fila vazia')
     else
     begin
-        escolher_assento(opcao_assento, disponivel_arq, disponivel_geral, disponivel_visitante);
+        escolher_tipo_assento(opcao_assento, opt_arq_disp, opt_geral_disp, opt_visit_disp);
 
-        if (opcao_assento = 1) and disponivel_arq then
+        if (opcao_assento = 1) and opt_arq_disp then
         begin
-            if pilha_remove(topo_pilha_arquibancada) then
-                fila_remove(fila, posicao_fila);
+            processa_venda_ingresso(topo_pilha_arquibancada, assentos_arquibancada, tamanho_arquibancada, fila, posicao_fila);
         end
-        else if (opcao_assento = 2) and disponivel_geral then
+        else if (opcao_assento = 2) and opt_geral_disp or (opcao_assento = 3) and opt_visit_disp then
         begin
-            if pilha_remove(topo_pilha_geral) then
-                fila_remove(fila, posicao_fila);
+            processa_venda_ingresso(topo_pilha_geral, assentos_geral, tamanho_geral, fila, posicao_fila);
         end
-        else if (opcao_assento = 3) and disponivel_visitante then
-        begin
-            if pilha_remove(topo_pilha_visitante) then
-                fila_remove(fila, posicao_fila);
-        end;
     end;
 end;
-
 
 
 procedure menu(var op_menu: integer);
