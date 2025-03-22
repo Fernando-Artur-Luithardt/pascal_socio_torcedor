@@ -81,20 +81,25 @@ begin
         end;
 end;
 
-procedure consulta_fila(f: vet; posi: integer; var el: integer; cor1, cor2: integer);
+// Consulta o estado da fila.
+procedure consulta_fila(fila: vet; posi:integer);
+var
+    i: integer;
 begin
-    textcolor(cor1);
-    if not FilaVazia(posi) then
-        begin
-            el := f[posi];
-            writeln('Primeiro elemento ', el);
-        end
+    if FilaVazia(posi) 
+    then
+        WriteLn('Fila vazia.')
     else
+    begin
+        Write('Fila: [');
+        for i := 1 to posi do
         begin
-            writeln('Fila vazia');
-            readkey;
-            textcolor(cor2);
+            Write(fila[i]);
+            if i < posi then
+            Write(', ');
         end;
+        WriteLn(']');
+    end;
 end;
 
 procedure escreve_fila(f: vet; posi: integer; texto: string);
@@ -120,8 +125,6 @@ end;
 
 // Remove um elemento da pilha.
 procedure remove_pilha(var topo:integer);
-var
-    i: Integer;
 begin
     if PilhaVazia(topo) then
         WriteLn('Ingressos Esgotados.')
@@ -134,7 +137,6 @@ end;
 
 procedure menu(var op_menu: integer);
 begin
-    clrscr;
     textcolor(blue);
     writeln ('    MENU    ');
     writeln ('------------');
@@ -151,12 +153,12 @@ begin
     writeln ('8 - Vender Fila Visitantes');
     writeln ('9 - Vender Fila Normal');
 
+    writeln ('10 - Sair');
+
     writeln;
     write('    ==> ');
     textcolor(red);
     readln (op_menu);
-
-    clrscr;
     textcolor(blue);
 end;
 
@@ -172,7 +174,7 @@ begin
     topo_pilha_visitante    := 300;
 
     opcao := 0;
-    while opcao <> 5 do 
+    while opcao <> 10 do 
     begin
         menu(opcao);
         if opcao = 1 then 
@@ -186,6 +188,18 @@ begin
         else if opcao = 3 then 
             begin
                 insere_fila(fila_normal, ultima_pos_fila_normal, 1, tamanho_fila_normal);
+            end
+        else if opcao = 4 then 
+            begin
+                consulta_fila(fila_socios, ultima_pos_fila_socio);
+            end
+        else if opcao = 5 then 
+            begin
+                consulta_fila(fila_visitante, ultima_pos_fila_visitante);
+            end
+        else if opcao = 6 then 
+            begin
+                consulta_fila(fila_normal, ultima_pos_fila_normal);
             end;
     end; 
 
