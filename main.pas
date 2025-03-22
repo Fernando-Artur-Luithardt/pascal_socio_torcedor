@@ -6,49 +6,59 @@ const
     tamanho_fila_visitante = 300;
     tamanho_fila_normal    = 2200;
 
+    tamanho_arquibancada    = 2000;
+    tamanho_geral           = 1000;
+
 type
-    vet = array[1..5000] of integer;
+    vet     = array[1..5000] of integer;
+    vetBool = array[1..2000] of boolean;
 
 var 
-    fila_socios: vet;
-    fila_visitante: vet;
-    fila_normal: vet;
-    opcao, ultima_pos_fila_socio, ultima_pos_fila_visitante, ultima_pos_fila_normal: integer;
-
-var
-    topo_pilha_arquibancada: integer;
-    topo_pilha_geral: integer;
-    topo_pilha_visitante: integer;
+    fila_socios:        vet;
+    fila_visitante:     vet;
+    fila_normal:        vet;
 
     pilha_arquibancada: vet;
-    pilha_geral: vet;
-    pilha_visitante: vet;
+    pilha_geral:        vet;
+    pilha_visitante:    vet;
 
+    opcao:                      integer;
+    ultima_pos_fila_socio:      integer;
+    ultima_pos_fila_visitante:  integer;
+    ultima_pos_fila_normal:     integer;
 
-procedure inicializaFila(var pos: integer);
+    topo_pilha_arquibancada:    integer;
+    topo_pilha_geral:           integer;
+    topo_pilha_visitante:       integer;
+
+    assentos_arquibancada:  vetBool;
+    assentos_geral:         vetBool;
+
+procedure fila_inicializa(var pos: integer);
 begin
     pos := 0;
 end;
 
-procedure ler_elemento(var el: integer);
+procedure assentos_inicializa(var vetor_assentos: vetBool; max: integer);
+var i: integer;
 begin
-    writeln('Digite o elemento');
-    readln(el);
+  for i := 1 to max do
+    vetor_assentos[i] := False;
 end;
 
-function cheia(posicao, tamanho: integer): boolean;
+function fila_cheia(posicao, tamanho: integer): boolean;
 begin   
-    cheia := posicao >= tamanho;
+    fila_cheia := posicao >= tamanho;
 end;
 
-function FilaVazia(posicao: integer): boolean;
+function fila_vazia(posicao: integer): boolean;
 begin   
-    FilaVazia := posicao = 0;
+    fila_vazia := posicao = 0;
 end;
 
-procedure insere_fila(var f: vet; var posicao: integer; elemento: integer; tamanho: integer);
+procedure fila_insere(var f: vet; var posicao: integer; elemento: integer; tamanho: integer);
 begin
-  if not cheia(posicao, tamanho) then
+  if not fila_cheia(posicao, tamanho) then
     begin
         posicao := posicao + 1;
         f[posicao] := elemento; 
@@ -60,12 +70,10 @@ begin
     end;
 end;
 
-procedure remove_fila(var fila: vet; var posicao: integer);
-var 
-  i: integer;
-
+procedure fila_remove(var fila: vet; var posicao: integer);
+var i: integer;
 begin
-    if FilaVazia(posicao) then 
+    if fila_vazia(posicao) then 
         begin
             writeln('Fila vazia');
             readkey;
@@ -81,11 +89,11 @@ begin
 end;
 
 // Consulta o estado da fila.
-procedure consulta_fila(fila: vet; posi:integer);
+procedure fila_consulta(fila: vet; posi:integer);
 var
     i: integer;
 begin
-    if FilaVazia(posi) 
+    if fila_vazia(posi) 
     then
         WriteLn('Fila vazia.')
     else
@@ -101,39 +109,24 @@ begin
     end;
 end;
 
-procedure escreve_fila(fila: vet; posi: integer; texto: string);
-var 
-    i: integer;
+
+function pilha_vazia(var topo:integer): Boolean;
 begin
-    writeln(texto);
-    writeln;
-
-    if not FilaVazia(posi) then
-        for i := 1 to posi do
-            write(fila[i], ' ')
-    else 
-        writeln('Fila vazia');
-        readkey;
-end;
-
-
-function PilhaVazia(var topo:integer): Boolean;
-begin
-  PilhaVazia := (topo = 0);
+  pilha_vazia := (topo = 0);
 end;
 
 // Remove um elemento da pilha.
-function remove_pilha(var topo: integer): boolean;
+function pilha_remove(var topo: integer): boolean;
 begin
-    if PilhaVazia(topo) then
+    if pilha_vazia(topo) then
     begin
         WriteLn('Ingressos Esgotados.');
-        remove_pilha := false;  // Retorna falso quando não pode remover
+        pilha_remove := false;  // Retorna falso quando não pode remover
     end
     else
     begin
         topo := topo - 1;
-        remove_pilha := true;  // Retorna true quando remove com sucesso
+        pilha_remove := true;  // Retorna true quando remove com sucesso
     end;
 end;
 
@@ -158,10 +151,10 @@ begin
     end;
 end;
 
-procedure vender_fila(fila: vet; var posicao_fila: integer; disponivel_arq, disponivel_geral, disponivel_visitante: boolean);
+procedure vender_ingresso_fila(fila: vet; var posicao_fila: integer; disponivel_arq, disponivel_geral, disponivel_visitante: boolean);
 var opcao_assento: integer;
 begin
-    if FilaVazia(posicao_fila) then
+    if fila_vazia(posicao_fila) then
         writeln('Fila vazia')
     else
     begin
@@ -169,18 +162,18 @@ begin
 
         if (opcao_assento = 1) and disponivel_arq then
         begin
-            if remove_pilha(topo_pilha_arquibancada) then
-                remove_fila(fila, posicao_fila);
+            if pilha_remove(topo_pilha_arquibancada) then
+                fila_remove(fila, posicao_fila);
         end
         else if (opcao_assento = 2) and disponivel_geral then
         begin
-            if remove_pilha(topo_pilha_geral) then
-                remove_fila(fila, posicao_fila);
+            if pilha_remove(topo_pilha_geral) then
+                fila_remove(fila, posicao_fila);
         end
         else if (opcao_assento = 3) and disponivel_visitante then
         begin
-            if remove_pilha(topo_pilha_visitante) then
-                remove_fila(fila, posicao_fila);
+            if pilha_remove(topo_pilha_visitante) then
+                fila_remove(fila, posicao_fila);
         end;
     end;
 end;
@@ -217,9 +210,12 @@ end;
 { Programa Principal }
 begin
     clrscr;
-    inicializaFila(ultima_pos_fila_socio);
-    inicializaFila(ultima_pos_fila_visitante);
-    inicializaFila(ultima_pos_fila_normal);
+    fila_inicializa(ultima_pos_fila_socio);
+    fila_inicializa(ultima_pos_fila_visitante);
+    fila_inicializa(ultima_pos_fila_normal);
+
+    assentos_inicializa(assentos_arquibancada, tamanho_arquibancada);
+    assentos_inicializa(assentos_geral, tamanho_geral);
 
     topo_pilha_arquibancada := 2000;
     topo_pilha_geral        := 700;
@@ -231,39 +227,39 @@ begin
         menu(opcao);
         if opcao = 1 then 
             begin
-                insere_fila(fila_socios, ultima_pos_fila_socio, 1, tamanho_fila_socios)
+                fila_insere(fila_socios, ultima_pos_fila_socio, 1, tamanho_fila_socios)
             end
         else if opcao = 2 then 
             begin
-                insere_fila(fila_visitante, ultima_pos_fila_visitante, 1, tamanho_fila_visitante)
+                fila_insere(fila_visitante, ultima_pos_fila_visitante, 1, tamanho_fila_visitante)
             end
         else if opcao = 3 then 
             begin
-                insere_fila(fila_normal, ultima_pos_fila_normal, 1, tamanho_fila_normal);
+                fila_insere(fila_normal, ultima_pos_fila_normal, 1, tamanho_fila_normal);
             end
         else if opcao = 4 then 
             begin
-                consulta_fila(fila_socios, ultima_pos_fila_socio);
+                fila_consulta(fila_socios, ultima_pos_fila_socio);
             end
         else if opcao = 5 then 
             begin
-                consulta_fila(fila_visitante, ultima_pos_fila_visitante);
+                fila_consulta(fila_visitante, ultima_pos_fila_visitante);
             end
         else if opcao = 6 then 
             begin
-                consulta_fila(fila_normal, ultima_pos_fila_normal);
+                fila_consulta(fila_normal, ultima_pos_fila_normal);
             end
         else if opcao = 7 then 
             begin
-                vender_fila(fila_socios, ultima_pos_fila_socio, true, false, false);
+                vender_ingresso_fila(fila_socios, ultima_pos_fila_socio, true, false, false);
             end
         else if opcao = 8 then 
             begin
-                vender_fila(fila_visitante, ultima_pos_fila_visitante, false, false, true);
+                vender_ingresso_fila(fila_visitante, ultima_pos_fila_visitante, false, false, true);
             end
         else if opcao = 9 then 
             begin
-                vender_fila(fila_normal, ultima_pos_fila_normal, true, true, false);
+                vender_ingresso_fila(fila_normal, ultima_pos_fila_normal, true, true, false);
             end;
     end; 
 
