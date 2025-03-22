@@ -60,7 +60,7 @@ begin
     end;
 end;
 
-procedure remove_fila(var f: vet; var posicao, el: integer);
+procedure remove_fila(var fila: vet; var posicao: integer);
 var 
   i: integer;
 
@@ -72,11 +72,10 @@ begin
         end
     else
         begin
-            el := f[1];
-            writeln('Elemento Removido ', el);
+            writeln('Removido da Fila');
             readkey;
             for i := 1 to posicao - 1 do
-                f[i] := f[i + 1];
+                fila[i] := fila[i + 1];
             posicao := posicao - 1;
         end;
 end;
@@ -102,7 +101,7 @@ begin
     end;
 end;
 
-procedure escreve_fila(f: vet; posi: integer; texto: string);
+procedure escreve_fila(fila: vet; posi: integer; texto: string);
 var 
     i: integer;
 begin
@@ -111,7 +110,7 @@ begin
 
     if not FilaVazia(posi) then
         for i := 1 to posi do
-            write(f[i], ' ')
+            write(fila[i], ' ')
     else 
         writeln('Fila vazia');
         readkey;
@@ -124,15 +123,68 @@ begin
 end;
 
 // Remove um elemento da pilha.
-procedure remove_pilha(var topo:integer);
+function remove_pilha(var topo: integer): boolean;
 begin
     if PilhaVazia(topo) then
-        WriteLn('Ingressos Esgotados.')
+    begin
+        WriteLn('Ingressos Esgotados.');
+        remove_pilha := false;  // Retorna falso quando não pode remover
+    end
     else
     begin
         topo := topo - 1;
+        remove_pilha := true;  // Retorna true quando remove com sucesso
     end;
 end;
+
+procedure escolher_assento(var op_assento: integer; disponivel_arq, disponivel_geral, disponivel_visitante: boolean);
+begin
+    writeln;
+    if disponivel_arq then writeln('1 - Arquibancada');
+    if disponivel_geral then writeln('2 - Geral');
+    if disponivel_visitante then writeln('3 - Visitante');
+
+    readln(op_assento);
+    
+    // Enquanto a opção escolhida não for válida, continue pedindo entrada
+    while not (
+        ((op_assento = 1) and disponivel_arq) or 
+        ((op_assento = 2) and disponivel_geral) or 
+        ((op_assento = 3) and disponivel_visitante)
+    ) do
+    begin
+        writeln('Opção inválida! Escolha um tipo de Assento:');
+        readln(op_assento);
+    end;
+end;
+
+procedure vender_fila(fila: vet; var posicao_fila: integer; disponivel_arq, disponivel_geral, disponivel_visitante: boolean);
+var opcao_assento: integer;
+begin
+    if FilaVazia(posicao_fila) then
+        writeln('Fila vazia')
+    else
+    begin
+        escolher_assento(opcao_assento, disponivel_arq, disponivel_geral, disponivel_visitante);
+
+        if (opcao_assento = 1) and disponivel_arq then
+        begin
+            if remove_pilha(topo_pilha_arquibancada) then
+                remove_fila(fila, posicao_fila);
+        end
+        else if (opcao_assento = 2) and disponivel_geral then
+        begin
+            if remove_pilha(topo_pilha_geral) then
+                remove_fila(fila, posicao_fila);
+        end
+        else if (opcao_assento = 3) and disponivel_visitante then
+        begin
+            if remove_pilha(topo_pilha_visitante) then
+                remove_fila(fila, posicao_fila);
+        end;
+    end;
+end;
+
 
 
 procedure menu(var op_menu: integer);
@@ -200,6 +252,18 @@ begin
         else if opcao = 6 then 
             begin
                 consulta_fila(fila_normal, ultima_pos_fila_normal);
+            end
+        else if opcao = 7 then 
+            begin
+                vender_fila(fila_socios, ultima_pos_fila_socio, true, false, false);
+            end
+        else if opcao = 8 then 
+            begin
+                vender_fila(fila_visitante, ultima_pos_fila_visitante, false, false, true);
+            end
+        else if opcao = 9 then 
+            begin
+                vender_fila(fila_normal, ultima_pos_fila_normal, true, true, false);
             end;
     end; 
 
