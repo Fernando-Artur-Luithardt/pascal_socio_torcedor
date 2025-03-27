@@ -9,13 +9,22 @@ const
     TAMANHO_MAXIMO_ARQUIBANCADA    = 2000;
     TAMANHO_MAXIMO_GERAL           = 1000;
 
-    QUANTIDADE_INGRESSOS_ARQUIBANCADA = 2000;
-    QUANTIDADE_INGRESSOS_GERAL        = 700;
-    QUANTIDADE_INGRESSOS_VISITANTE    = 300;
+    QUANTIDADE_INGRESSOS_ARQUIBANCADA_SOCIOS     = 500;
+    QUANTIDADE_INGRESSOS_ARQUIBANCADA_TORCEDORES = 1500;
+    QUANTIDADE_INGRESSOS_GERAL_TORCEDORES        = 700;
+    QUANTIDADE_INGRESSOS_GERAL_VISITANTES        = 300;
 
-    VALOR_INGRESSO_ARQUIBANCADA = 100;
-    VALOR_INGRESSO_GERAL        = 40; 
-    VALOR_INGRESSO_VISITANTES   = 80;   
+    VALOR_INGRESSO_ARQUIBANCADA_TORCEDORES = 100;
+    VALOR_INGRESSO_GERAL_TORCEDORES        = 40; 
+    VALOR_INGRESSO_GERAL_VISITANTES        = 80;   
+    VALOR_INGRESSO_ARQUIBANCADA_SOCIOS     = 50;
+
+    SOCIO     = 1;
+    TORCEDOR  = 2;
+    VISITANTE = 3;
+
+    ARQUIBANCADA = 1;
+    GERAL        = 2;
 
 type
     arrayInteiros = array[1..5000] of integer;
@@ -32,31 +41,27 @@ var
     iUltimaPosicaoFilaVisitante : integer;
     iUltimaPosicaoFilaNormal    : integer;
 
-    aPilhaIngressosArquibancada : arrayInteiros;
-    aPilhaIngressosGeral        : arrayInteiros;
-    aPilhaIngressosVisitante    : arrayInteiros;
+    aPilhaIngressosArquibancadasSocios     : arrayInteiros;
+    aPilhaIngressosArquibancadasTorcedores : arrayInteiros;
+    aPilhaIngressosGeralTorcedores         : arrayInteiros;
+    aPilhaIngressosGeralVisitantes         : arrayInteiros;
 
-    iTopoPilhaArquibancada : integer;
-    iTopoPilhaGeral        : integer;
-    iTopoPilhaVisitante    : integer;
+    iTopoPilhaArquibancadaSocios     : integer;
+    iTopoPilhaArquibancadaTorcedores : integer;
+    iTopoPilhaGeralTorcedores        : integer;
+    iTopoPilhaGeralVisitantes         : integer;
 
     aAssentosArquibancada : arrayBoleanos;
     aAssentosGeral        : arrayBoleanos;
 
-    iTotalArrecadadoArquibancada : integer;
-    iTotalArrecadadoSocios       : integer;
-    iTotalArrecadadoGeral        : integer;
-    iTotalArrecadadoVisitantes   : integer;
-    iTotalRenda                  : integer;
+    iTotalArrecadadoArquibancadaSocios     : integer = 0;
+    iTotalArrecadadoArquibancadaTorcedores : integer = 0;
+    iTotalArrecadadoGeralTorcedores        : integer = 0;
+    iTotalArrecadadoGeralVisitantes        : integer = 0;
 
-procedure inicializaPilhaIngressos(var aPilhaIngressos: arrayInteiros; iMaximoIngressos: integer; var iTopoPilha: integer);
-var i: integer;
-begin
-    for i := 1 to iMaximoIngressos do
-        aPilhaIngressos[i] := i;
-    
-    iTopoPilha := iMaximoIngressos;
-end;
+    iContadorPessoasFilaSocio      : integer = 0;
+    iContadorPessoasFilaVisitante  : integer = 0;
+    iContadorPessoasFilaTorcedores : integer = 0;
 
 procedure renderizaAssentos(var aAssentos: arrayBoleanos; iMaximoAssentos: integer);
 var i: integer;
@@ -65,27 +70,32 @@ begin
     aAssentos[i] := False;
 end;
 
+function isFilaVazia(iPosicao: integer): boolean;
+begin   
+    isFilaVazia := iPosicao = 0;
+end;
+
 function isFilaCheia(iPosicao, iTamanhoFila: integer): boolean;
 begin   
     isFilaCheia := iPosicao >= iTamanhoFila;
 end;
 
-function isFilaVazia(iPosicao: integer): boolean;
-begin   
-    isFilaVazia := iPosicao = 0;
-end; 
+function isPilhaIngressoVazia(var iPosicaoTopo:integer): Boolean;
+begin
+    isPilhaIngressoVazia := (iPosicaoTopo = 0);
+end;
 
-procedure insereRegistroFila(var aFila: arrayInteiros; var iPosicao: integer; iTamanhoFila: integer);
+procedure insereRegistroFila(var aFila: arrayInteiros; var iPosicao: integer; iTamanhoFila: integer; var iContadorPessoasFila : integer);
 begin
   if not isFilaCheia(iPosicao, iTamanhoFila) then
     begin
         iPosicao := iPosicao + 1;
-        aFila[iPosicao] := iPosicao; 
+        iContadorPessoasFila := iContadorPessoasFila + 1;
+        aFila[iPosicao] := iContadorPessoasFila; 
     end
   else 
     begin
         writeln('Fila cheia');
-        readkey;
     end;
 end;
 
@@ -102,8 +112,32 @@ begin
 
             for i:= 1 to iUltimaPosicaoFila - 1 do
                 aFila[i] := aFila[i + 1];
+
             iUltimaPosicaoFila := iUltimaPosicaoFila - 1;
         end;
+end;
+
+procedure inicializaPilhaIngressos(var aPilhaIngressos: arrayInteiros; iMaximoIngressos: integer; var iTopoPilha: integer);
+var i: integer;
+begin
+    for i := 1 to iMaximoIngressos do
+        aPilhaIngressos[i] := i;
+    
+    iTopoPilha := iMaximoIngressos;
+end;
+
+procedure removeRegistroPilha(var aPilhaIngressos: arrayInteiros; var iTopoPilha: integer);
+begin
+  if aPilhaIngressos[iTopoPilha] > 0 then
+  begin
+    aPilhaIngressos[iTopoPilha] := 0;
+    iTopoPilha := iTopoPilha - 1;
+  end
+  else
+  begin
+    textcolor(red);
+    Writeln('Ingressos Esgotados.');
+  end;
 end;
 
 procedure consultarFila(aFila: arrayInteiros; iPosicao:integer);
@@ -126,50 +160,46 @@ begin
     end;
 end;
 
-function isPilhaIngressoVazia(var iPosicaoTopo:integer): Boolean;
-begin
-    isPilhaIngressoVazia := (iPosicaoTopo = 0);
-end;
 
-function alteraSituacaoAssento(var iPosicaoTopo: integer): boolean;
-begin
-    if isPilhaIngressoVazia(iPosicaoTopo) then
-    begin
-        WriteLn('Ingressos Esgotados.');
-        alteraSituacaoAssento := false;
-    end
-    else
-    begin
-        iPosicaoTopo := iPosicaoTopo - 1;
-        alteraSituacaoAssento := true;
-    end;
-end;
-
-procedure selecionaTipoAssento(var iOpcaoAssento: integer; bArquibancada, bGeral, bVisitante: boolean);
+function selecionaTipoAssento(var iOpcaoAssento: integer; iTipoPessoa: integer) : boolean;
+var bErro: boolean; 
 begin
     writeln;
-    if bArquibancada   then writeln('1 - Arquibancada');
-    if bGeral          then writeln('2 - Geral');
-    if bVisitante      then writeln('3 - Visitante');
+    
+    bErro := false;
+
+    if(iTipoPessoa = SOCIO) then
+    begin
+        writeln('1 - Arquibancada');
+    end
+    else if(iTipoPessoa = TORCEDOR) then
+    begin
+        writeln('1 - Arquibancada');
+        writeln('2 - Geral');
+    end
+    else
+        writeln('2 - Geral');
 
     readln(iOpcaoAssento);
     
     while not (
-        ((iOpcaoAssento = 1) and bArquibancada) or 
-        ((iOpcaoAssento = 2) and bGeral) or 
-        ((iOpcaoAssento = 3) and bVisitante)
+        ((iOpcaoAssento  = ARQUIBANCADA) and (iTipoPessoa  = SOCIO)) or 
+        (((iOpcaoAssento = ARQUIBANCADA) or  (iOpcaoAssento = GERAL)) and (iTipoPessoa = TORCEDOR)) or
+        ((iOpcaoAssento  = GERAL)        and (iTipoPessoa   = VISITANTE))
     ) do
     begin
         writeln('Opção inválida! Escolha um tipo de Assento:');
-        readln(iOpcaoAssento);
+        selecionaTipoAssento := true;
+        exit;
     end;
+
+    selecionaTipoAssento := bErro;
 end;
 
 function escolherAssento(var aAssentosArquibancada: arrayBoleanos; iMaximoAssentos: integer): boolean;
-var iAssentoEscolhido, i: integer;
+var 
+    iAssentoEscolhido, i: integer;
 begin
-    escolherAssento := false; 
-
     writeln('Assentos disponíveis: ');
     for i := 1 to iMaximoAssentos do
         if not aAssentosArquibancada[i] then
@@ -182,63 +212,98 @@ begin
     if (iAssentoEscolhido < 1) or (iAssentoEscolhido > iMaximoAssentos) then
     begin
         writeln('Número inválido! Escolha entre 1 e ', iMaximoAssentos, '.');
-        exit;
+        escolherAssento := false;
     end;
 
-    if aAssentosArquibancada[iAssentoEscolhido] = False then
+    if aAssentosArquibancada[iAssentoEscolhido] = false then
     begin
-        aAssentosArquibancada[iAssentoEscolhido] := True;
+        aAssentosArquibancada[iAssentoEscolhido] := true;
         writeln('Assento ', iAssentoEscolhido, ' reservado com sucesso!');
         escolherAssento := true;
     end
     else
+    begin
         writeln('Assento ', iAssentoEscolhido, ' já foi utilizado!');
+        escolherAssento := false;
+    end;
 end;
 
-procedure geraVendaIngresso(var iTopoPilha: integer; var aAssentos: arrayBoleanos; iQuantidadeAssentos: integer; var aFila: arrayInteiros; var iUltimaPosicaoFila: integer);
+function geraVendaIngresso(var aPilhaIngressos: arrayInteiros; var iTopoPilha: integer; var aAssentos: arrayBoleanos; iQuantidadeAssentos: integer; var aFila: arrayInteiros; var iUltimaPosicaoFila: integer) : boolean;
 begin
+    geraVendaIngresso := false;
+
     if not isPilhaIngressoVazia(iTopoPilha) then
     begin
-        if escolherAssento(aAssentos, iQuantidadeAssentos) then
+        if not escolherAssento(aAssentos, iQuantidadeAssentos) then
         begin
-            alteraSituacaoAssento(iTopoPilha);
-            removeRegistroFila(aFila, iUltimaPosicaoFila);
-        end
+            geraVendaIngresso := true;
+            exit;
+        end;
+
+        removeRegistroFila(aFila, iUltimaPosicaoFila);
+        removeRegistroPilha(aPilhaIngressos, iTopoPilha);
     end
-    else
+    else if isPilhaIngressoVazia(iTopoPilha) then
+    begin
+        geraVendaIngresso := true;
         WriteLn('Ingressos Esgotados.')
+    end;
 end;
 
-procedure vendeIngressoFilaConformeAtributos(var aFila: arrayInteiros; var iUltimaPosicaoFila: integer; bArquibancada, bGeral, bVisitante: boolean);
-var iOpcaoAssento: integer;
+procedure vendeIngressoConformeAtributos(var aFila: arrayInteiros; var iUltimaPosicaoFila: integer; iTipoPessoa: integer);
+var iOpcaoAssento: integer; bErro: boolean;
 begin
     if isFilaVazia(iUltimaPosicaoFila) then
         writeln('Fila vazia')
     else
     begin
-        selecionaTipoAssento(iOpcaoAssento, bArquibancada, bGeral, bVisitante);
+        bErro := selecionaTipoAssento(iOpcaoAssento, iTipoPessoa);
 
-        if (iOpcaoAssento = 1) and bArquibancada then
+        if bErro then
+            exit;
+
+        if((iOpcaoAssento = ARQUIBANCADA) and (iTipoPessoa = SOCIO)) then
         begin
-            geraVendaIngresso(iTopoPilhaArquibancada, aAssentosArquibancada, TAMANHO_MAXIMO_ARQUIBANCADA, aFila, iUltimaPosicaoFila);
+            bErro := geraVendaIngresso(aPilhaIngressosArquibancadasSocios, iTopoPilhaArquibancadaSocios, aAssentosArquibancada, TAMANHO_MAXIMO_ARQUIBANCADA, aFila, iUltimaPosicaoFila);
+
+            if not bErro then 
+                iTotalArrecadadoArquibancadaSocios := iTotalArrecadadoArquibancadaSocios + VALOR_INGRESSO_ARQUIBANCADA_SOCIOS;
         end
-        else if (iOpcaoAssento = 2) and bGeral or (iOpcaoAssento = 3) and bVisitante then
+        else if ((iOpcaoAssento = ARQUIBANCADA) and (iTipoPessoa = TORCEDOR)) then
         begin
-            geraVendaIngresso(iTopoPilhaGeral, aAssentosGeral, TAMANHO_MAXIMO_GERAL, aFila, iUltimaPosicaoFila);
+            bErro := geraVendaIngresso(aPilhaIngressosArquibancadasTorcedores, iTopoPilhaArquibancadaTorcedores, aAssentosArquibancada, TAMANHO_MAXIMO_ARQUIBANCADA, aFila, iUltimaPosicaoFila);
+
+            if not bErro then
+                iTotalArrecadadoArquibancadaTorcedores := iTotalArrecadadoArquibancadaTorcedores + VALOR_INGRESSO_ARQUIBANCADA_TORCEDORES;
+        end
+        else if ((iOpcaoAssento = GERAL) and (iTipoPessoa = TORCEDOR)) then
+        begin
+            bErro := geraVendaIngresso(aPilhaIngressosGeralTorcedores, iTopoPilhaGeralTorcedores, aAssentosGeral, TAMANHO_MAXIMO_GERAL, aFila, iUltimaPosicaoFila);
+
+            if not bErro then
+                iTotalArrecadadoGeralTorcedores := iTotalArrecadadoGeralTorcedores + VALOR_INGRESSO_GERAL_TORCEDORES;
+        end
+        else if ((iOpcaoAssento = GERAL) and (iTipoPessoa = VISITANTE)) then
+        begin
+            bErro := geraVendaIngresso(aPilhaIngressosGeralVisitantes, iTopoPilhaGeralVisitantes, aAssentosGeral, TAMANHO_MAXIMO_GERAL, aFila, iUltimaPosicaoFila);
+            
+            if not bErro then
+                iTotalArrecadadoGeralVisitantes := iTotalArrecadadoGeralVisitantes + VALOR_INGRESSO_GERAL_VISITANTES;
         end
     end;
 end;
 
-procedure exibirTotalArrecadado(iTotalArrecadadoArquibancada, iTotalArrecadadoSocios, iTotalArrecadadoGeral, iTotalArrecadadoVisitantes : integer);
+procedure exibirTotalArrecadado();
+var iTotalRenda: integer;
 begin
-    iTotalRenda := iTotalArrecadadoArquibancada + iTotalArrecadadoSocios + iTotalArrecadadoGeral + iTotalArrecadadoVisitantes;
+    iTotalRenda := iTotalArrecadadoArquibancadaSocios + iTotalArrecadadoArquibancadaTorcedores + iTotalArrecadadoGeralTorcedores + iTotalArrecadadoGeralVisitantes;
 
-    textcolor(blue);
+    textcolor(green);
     writeln('Total Arrecadado por Tipo de Ingresso:');
-    writeln('Arquibancada: R$ ', iTotalArrecadadoArquibancada);
-    writeln('Sócios: R$ ', iTotalArrecadadoSocios);
-    writeln('Geral: R$ ', iTotalArrecadadoGeral);
-    writeln('Visitantes: R$ ', iTotalArrecadadoVisitantes);
+    writeln('Arquibancada Sócios: R$ ', iTotalArrecadadoArquibancadaSocios);
+    writeln('Arquibancada Torcedores: R$ ', iTotalArrecadadoArquibancadaTorcedores);
+    writeln('Geral Torcedores: R$ ', iTotalArrecadadoGeralTorcedores);
+    writeln('Geral Visitantes: R$ ', iTotalArrecadadoGeralVisitantes);
     writeln('Total da Renda: R$ ', iTotalRenda);
 end;
 
@@ -275,29 +340,28 @@ end;
 begin
     clrscr;
 
-    inicializaPilhaIngressos(aPilhaIngressosArquibancada, QUANTIDADE_INGRESSOS_ARQUIBANCADA, iTopoPilhaArquibancada);
-    inicializaPilhaIngressos(aPilhaIngressosGeral, QUANTIDADE_INGRESSOS_GERAL, iTopoPilhaGeral);
-    inicializaPilhaIngressos(aPilhaIngressosVisitante, QUANTIDADE_INGRESSOS_VISITANTE, iTopoPilhaVisitante );
+    inicializaPilhaIngressos(aPilhaIngressosArquibancadasSocios,     QUANTIDADE_INGRESSOS_ARQUIBANCADA_SOCIOS,     iTopoPilhaArquibancadaSocios);
+    inicializaPilhaIngressos(aPilhaIngressosArquibancadasTorcedores, QUANTIDADE_INGRESSOS_ARQUIBANCADA_TORCEDORES, iTopoPilhaArquibancadaTorcedores);
+    inicializaPilhaIngressos(aPilhaIngressosGeralTorcedores,         QUANTIDADE_INGRESSOS_GERAL_TORCEDORES,        iTopoPilhaGeralTorcedores);
+    inicializaPilhaIngressos(aPilhaIngressosGeralVisitantes,         QUANTIDADE_INGRESSOS_GERAL_VISITANTES,        iTopoPilhaGeralVisitantes);
 
     renderizaAssentos(aAssentosArquibancada, TAMANHO_MAXIMO_ARQUIBANCADA);
-    renderizaAssentos(aAssentosGeral, TAMANHO_MAXIMO_GERAL);
-
-    iOpcao := 0;
+    renderizaAssentos(aAssentosGeral,        TAMANHO_MAXIMO_GERAL);
 
     while iOpcao <> 11 do 
     begin
         renderizaMenu(iOpcao);
         if iOpcao = 1 then 
             begin
-                insereRegistroFila(aFilaSocios, iUltimaPosicaoFilaSocio, TAMANHO_MAXIMO_FILA_SOCIOS);
+                insereRegistroFila(aFilaSocios, iUltimaPosicaoFilaSocio, TAMANHO_MAXIMO_FILA_SOCIOS, iContadorPessoasFilaSocio);
             end
         else if iOpcao = 2 then 
             begin
-                insereRegistroFila(aFilaVisitantes, iUltimaPosicaoFilaVisitante, TAMANHO_MAXIMO_FILA_VISITANTES)
+                insereRegistroFila(aFilaVisitantes, iUltimaPosicaoFilaVisitante, TAMANHO_MAXIMO_FILA_VISITANTES, iContadorPessoasFilaVisitante);
             end
         else if iOpcao = 3 then 
             begin
-                insereRegistroFila(aFilaNormal, iUltimaPosicaoFilaNormal, TAMANHO_MAXIMO_FILA_NORMAL);
+                insereRegistroFila(aFilaNormal, iUltimaPosicaoFilaNormal, TAMANHO_MAXIMO_FILA_NORMAL, iContadorPessoasFilaTorcedores);
             end
         else if iOpcao = 4 then 
             begin
@@ -313,19 +377,19 @@ begin
             end
         else if iOpcao = 7 then 
             begin
-                vendeIngressoFilaConformeAtributos(aFilaSocios, iUltimaPosicaoFilaSocio, true, false, false);
+                vendeIngressoConformeAtributos(aFilaSocios, iUltimaPosicaoFilaSocio, SOCIO);
             end
         else if iOpcao = 8 then 
             begin
-                vendeIngressoFilaConformeAtributos(aFilaVisitantes, iUltimaPosicaoFilaVisitante, false, false, true);
+                vendeIngressoConformeAtributos(aFilaVisitantes, iUltimaPosicaoFilaVisitante, VISITANTE);
             end
         else if iOpcao = 9 then 
             begin
-                vendeIngressoFilaConformeAtributos(aFilaNormal, iUltimaPosicaoFilaNormal, true, true, false);
+                vendeIngressoConformeAtributos(aFilaNormal, iUltimaPosicaoFilaNormal,TORCEDOR);
             end
         else if iOpcao = 10 then
             begin
-                exibirTotalArrecadado(iTotalArrecadadoArquibancada, iTotalArrecadadoGeral, iTotalArrecadadoVisitantes, iTotalRenda);
+                exibirTotalArrecadado();
             end;
     end;
 end.
